@@ -7,6 +7,7 @@ from my.config import evernote_md as config # type: ignore[attr-defined]
 from my.core import get_files #, Stats #, Res
 
 import re
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Iterator, NamedTuple, Optional, List
@@ -48,14 +49,22 @@ def _preprocess_md(markup: str) -> str:
 
     Inspired by https://github.com/facebookresearch/fastText/blob/main/wikifil.pl
     """
+    markup = unicodedata.normalize("NFKD", markup)
     # Remove images
     re_images = re.compile(r'!\[.+\]\(.+\)')
     markup = re_images.sub("", markup)
     # Remove links
     re_links = re.compile(r'\[(.+)\]\(.+\)')
     markup = re_links.sub(r'\1', markup)
-    re_https = re.compile(r'https?')
-    markup = re_https.sub('', markup)
+#    re_https = re.compile(r'https?')
+#    markup = re_https.sub('', markup)
+    re_url_id = re.compile(r'https?://(.+?)\d{6,}.*')
+    markup = re_url_id.sub(r'\1 idnro', markup)
+    re_https = re.compile(r'https?://(.+?)(&|\s).*')
+    markup = re_https.sub(r'\1', markup)
+    # Dates etc
+    re_years = re.compile(r'\b(19|20)\d\d\b')
+    markup = re_years.sub('YYYY', markup)
     # Currency (120€) and points (88p) and such (180°)
     # issues with eg. 2020-05
     re_euro = re.compile(r'\s\d+([^\d])\W')
