@@ -1,5 +1,4 @@
-if __name__ == "__main__":
-    from setuptools import setup, find_namespace_packages # type: ignore[import]
+from setuptools import setup, find_namespace_packages # type: ignore[import]
 
 # from https://github.com/seanbreckenridge/HPI/blob/master/setup.py
 def subpackages():
@@ -22,5 +21,4 @@ if __name__ == "__main__":
         description="A Python interface to my life",
         python_requires=">=3.8",
     )
-
 
