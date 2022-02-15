@@ -27,7 +27,7 @@ class Note(NamedTuple):
 def _parse_date(d: str) -> datetime:
     return datetime.strptime(d, "%Y-%m-%d %H:%M:%S %z")
 
-def _parse_heading(raw: str) -> NamedTuple:
+def _parse_heading(raw: str) -> Heading:
     fields = {}
     for row in raw.split('\n'):
         a = row.split(': ', 1)
@@ -37,7 +37,7 @@ def _parse_heading(raw: str) -> NamedTuple:
             title = fields["title"], # if title in fields else ""
             created_at = _parse_date(fields["date"]),
             updated_at = _parse_date(fields["updated_at"]),
-            tags = fields["tags"] if "tags" in fields else None
+            tags = fields["tags"].split(',') if "tags" in fields else None
             )
     return heading
 
