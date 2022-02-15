@@ -27,7 +27,7 @@ def _parse_post(item: Element) -> Post:
     title = item.findtext('title')
     #print(f"Parsing post '{title}', modified: {item.findtext('{*}post_modified_gmt')}.")
     return Post(
-            post_id = item.findtext('{*}post_id'),
+            post_id = int(item.findtext('{*}post_id')),
             title = item.findtext('title'), # or: tree.xpath('//item/title')[0].text
             link = item.findtext('link'),
             created_at = _parse_date(item.findtext('{*}post_date_gmt')),
