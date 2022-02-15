@@ -1,6 +1,9 @@
 """
 Apple iBooks annotations. Read the iBooks' annotations database using
 https://github.com/jussihuotari/pinotate
+
+I wonder if it would be possible to extract reading progress events from the
+database, similar to https://github.com/karlicoss/kobuddy
 """
 REQUIRES = ['pinotate']
 
@@ -19,6 +22,7 @@ class Highlight(NamedTuple):
     ref_in_chapter: int
 
 class Book(NamedTuple):
+    author: str
     title: str
     highlights: List[Highlight]
 
@@ -28,13 +32,16 @@ def _parse_date(seconds_since_ref_date: int) -> datetime:
     utc = (reference_date + delta_since_reference)
     return utc
 
-def books() -> Iterator[Book]:
+def _iter_books() -> Iterator[Book]:
     worker = IBooksWorker()
-    for title in worker.titles():
+    for (author, title) in worker.titles():
         aid = worker.asset_id(title)
         data = worker.highlights(aid)
         #print(f"Processing book '{title}', {aid}.")
         highlights = [Highlight(d.text, d.heading, _parse_date(d.created), d.chapter, d.ref_in_chapter) for d in data]
         if len(highlights):
-            yield Book(title = title, highlights = highlights)
+            yield Book(author = author, title = title, highlights = highlights)
+
+def books() -> List[Book]:
+    return list(sorted(_iter_books(), key=lambda b: (b.author, b.title)))
 
